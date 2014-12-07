@@ -414,7 +414,7 @@ void Ruler::draw_logic_tick_mark(QPainter &p)
 
     double min_width = SpacingIncrement;
     double typical_width;
-    double tick_period = 0;
+    double tick_period;
 
     const uint64_t cur_period_scale = ceil((_view.scale() * min_width) / abs_min_period);
 
@@ -433,12 +433,9 @@ void Ruler::draw_logic_tick_mark(QPainter &p)
     typical_width = p.boundingRect(0, 0, INT_MAX, INT_MAX,
         AlignLeft | AlignTop, format_time(_view.offset(),
         prefix)).width() + MinValueSpacing;
-    do
-    {
-        tick_period += _min_period;
-
-    } while(typical_width > tick_period / _view.scale());
-
+	
+	tick_period = (long)( (typical_width* _view.scale() + _min_period) / _min_period) * _min_period;
+	
     const int text_height = p.boundingRect(0, 0, INT_MAX, INT_MAX,
         AlignLeft | AlignTop, "8").height();
 
