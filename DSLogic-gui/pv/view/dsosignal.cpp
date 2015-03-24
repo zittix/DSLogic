@@ -378,17 +378,24 @@ void DsoSignal::paint_back(QPainter &p, int left, int right)
     p.drawRect(shown_offset, UpMargin/2 - 3, shown_len, 6);
 
     QPen pen(Signal::dsFore);
-    pen.setStyle(Qt::DotLine);
+    pen.setStyle(Qt::DashLine);
     p.setPen(pen);
     const double spanY =height * 1.0f / 10;
     for (i = 1; i <= DS_CONF_DSO_VDIVS; i++) {
+        
+
         const double posY = spanY * i + UpMargin;
         p.drawLine(left, posY, right - RightMargin, posY);
         const double miniSpanY = spanY / 5;
+
+        pen.setStyle(Qt::SolidLine);
+        p.setPen(pen);
         for (j = 1; j < 5; j++) {
             p.drawLine(width / 2.0f - 10, posY - miniSpanY * j,
                        width / 2.0f + 10, posY - miniSpanY * j);
         }
+        pen.setStyle(Qt::DashLine);
+        p.setPen(pen);
     }
     const double spanX = width * 1.0f / 10;
     for (i = 1; i <= DS_CONF_DSO_HDIVS; i++) {
@@ -396,10 +403,15 @@ void DsoSignal::paint_back(QPainter &p, int left, int right)
         p.drawLine(posX, UpMargin,
                    posX, height + UpMargin);
         const double miniSpanX = spanX / 5;
+
+        pen.setStyle(Qt::SolidLine);
+        p.setPen(pen);
         for (j = 1; j < 5; j++) {
             p.drawLine(posX - miniSpanX * j, height / 2.0f + UpMargin - 10,
                        posX - miniSpanX * j, height / 2.0f + UpMargin + 10);
         }
+        pen.setStyle(Qt::DashLine);
+        p.setPen(pen);
     }
 }
 
