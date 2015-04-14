@@ -112,6 +112,10 @@ void DevMode::paintEvent(QPaintEvent*)
     painter.end();
 }
 
+static void session_error(QString /*error*/) {
+
+}
+
 void DevMode::on_mode_change()
 {
     const boost::shared_ptr<device::DevInst> dev_inst = _view.session().get_device();
@@ -157,7 +161,12 @@ void DevMode::on_mode_change()
                              msg.setStandardButtons(QMessageBox::Ok);
                              msg.setIcon(QMessageBox::Warning);
                              msg.exec();
-                         }
+                        } else {
+                            //Capture one sample to have zeros properly displayed
+                            _view.session().start_capture(true,
+                                boost::bind(&session_error,
+                                    QString("Capture failed")));
+                        }
                     }
                 }
             }

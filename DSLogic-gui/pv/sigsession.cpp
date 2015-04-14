@@ -51,12 +51,17 @@
 #include <assert.h>
 #include <stdexcept>
 #include <sys/stat.h>
+#include <extdef.h>
+
+#include <math.h>
 
 #include <QDebug>
 #include <QMessageBox>
 
 #include <boost/foreach.hpp>
-
+#include <sstream>
+#include <fstream>
+ 
 using boost::dynamic_pointer_cast;
 using boost::function;
 using boost::lock_guard;
@@ -147,18 +152,101 @@ void SigSession::set_file(const string &name) throw(QString)
 }
 
 void SigSession::save_file(const std::string &name){
-    const deque< boost::shared_ptr<pv::data::LogicSnapshot> > &snapshots =
+    if (get_device()->dev_inst()->mode == LOGIC) {
+        const deque< boost::shared_ptr<pv::data::LogicSnapshot> > &snapshots =
         _logic_data->get_snapshots();
-    if (snapshots.empty())
-        return;
+        if (snapshots.empty())
+            return;
 
-    const boost::shared_ptr<pv::data::LogicSnapshot> &snapshot =
-        snapshots.front();
+        const boost::shared_ptr<pv::data::LogicSnapshot> &snapshot =
+            snapshots.front();
 
-    sr_session_save(name.c_str(), _dev_inst->dev_inst(),
-                    (unsigned char*)snapshot->get_data(),
-                    snapshot->unit_size(),
-                    snapshot->get_sample_count());
+        sr_session_save(name.c_str(), _dev_inst->dev_inst(),
+                        (unsigned char*)snapshot->get_data(),
+                        snapshot->unit_size(),
+                        snapshot->get_sample_count());
+    } else if (get_device()->dev_inst()->mode == DSO) {
+        const deque< boost::shared_ptr<pv::data::DsoSnapshot> > &snapshots =
+            _dso_data->get_snapshots();
+        
+        if (snapshots.empty())
+            return NULL;
+
+        const boost::shared_ptr<pv::data::DsoSnapshot> &snapshot =
+            snapshots.front();
+
+        
+
+
+        const uint16_t number_channels = snapshot->get_channel_num();
+
+        const double samplerate = _dev_inst->get_sample_rate();
+
+        const unsigned long long last_sample = std::max((unsigned long long)(snapshot->get_sample_count() - 1), (unsigned long long)0);
+
+        const uint8_t *const samples = snapshot->get_samples(0, last_sample, 0);
+        assert(samples);
+
+        
+        
+
+        std::ofstream ss(name.c_str());
+
+        ss << std::setprecision( std::numeric_limits<int>::max() );
+
+        ss << "Time (ms),";
+        for(uint16_t ch=0;ch<number_channels;ch++) {
+            ss << "Channel " << ch << " (V)";
+            
+            if(ch+1<number_channels) {
+                ss << ",";
+            } else {
+                ss << std::endl;
+            }
+        }
+        
+        unsigned int ii=0;
+
+        uint64_t valueVDivs[number_channels];
+
+        for (GSList* l = _dev_inst->dev_inst()->channels; l && ii<number_channels; l = l->next, ii++) {
+            sr_channel *const probe = (sr_channel*)l->data;
+            assert(probe);
+
+            GVariant* gvar = _dev_inst->get_config(probe, NULL, SR_CONF_VDIV);
+
+
+            if (gvar != NULL) {
+                valueVDivs[ii] = g_variant_get_uint64(gvar);
+                g_variant_unref(gvar);
+            } else {
+                valueVDivs[ii]=0;
+            }
+        }
+
+        for(unsigned long long i=0;i<=last_sample;i++) {
+            ss << i/(double)samplerate*1000.0 << ",";
+            for(uint16_t ch=0;ch<number_channels;ch++) {
+        
+                uint8_t sample = samples[i*number_channels+ch];
+                double sample_int = sample/255.0-0.5;
+
+                double value = (valueVDivs[ch]*(DS_CONF_DSO_VDIVS))*sample_int/1000.0;
+
+                ss << value;
+
+                if(ch+1<number_channels) {
+                    ss << ",";
+                } else {
+                    ss << std::endl;
+                }
+            }
+        }
+
+        //std::cout << ss.str();
+
+
+    }
 }
 
 void SigSession::set_default_device()
