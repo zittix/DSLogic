@@ -122,13 +122,13 @@ void FileBar::on_actionSave_triggered()
         msg.setIcon(QMessageBox::Warning);
         msg.exec();
     } else if (_session.get_device()->dev_inst()->mode != LOGIC) {
-        QMessageBox msg(this);
-        msg.setText("File Save");
-        msg.setInformativeText("DSLogic currently only support saving logic data to file!");
-        msg.setStandardButtons(QMessageBox::Ok);
-        msg.setIcon(QMessageBox::Warning);
-        msg.exec();
-    }else {
+        const QString file_name = QFileDialog::getSaveFileName(
+                    this, tr("Save CSV File"), "",
+                    tr("DSLogic Session CSV (*.csv)"));
+        if (!file_name.isEmpty()) {
+            _session.save_file(file_name.toStdString());
+        }
+    } else {
         const QString file_name = QFileDialog::getSaveFileName(
                     this, tr("Save File"), "",
                     tr("DSLogic Session (*.dsl)"));
