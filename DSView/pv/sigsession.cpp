@@ -489,7 +489,7 @@ vector< boost::shared_ptr<view::GroupSignal> > SigSession::get_group_signals()
 
 set< boost::shared_ptr<data::SignalData> > SigSession::get_data() const
 {
-    lock_guard<mutex> lock(_signals_mutex);
+    boost::lock_guard<boost::mutex> lock(_signals_mutex);
     set< boost::shared_ptr<data::SignalData> > data;
     BOOST_FOREACH(const boost::shared_ptr<view::Signal> sig, _signals) {
         assert(sig);
@@ -1308,7 +1308,7 @@ bool SigSession::add_decoder(srd_decoder *const dec)
 
 vector< boost::shared_ptr<view::DecodeTrace> > SigSession::get_decode_signals() const
 {
-    lock_guard<mutex> lock(_signals_mutex);
+    boost::lock_guard<boost::mutex> lock(_signals_mutex);
     return _decode_traces;
 }
 

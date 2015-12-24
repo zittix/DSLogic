@@ -148,9 +148,9 @@ static struct sr_dev_driver *di = &DSCope_driver_info;
 extern struct ds_trigger *trigger;
 
 gboolean mstatus_valid = FALSE;
-struct sr_status mstatus;
-struct cmd_zero_info zero_info;
-struct cmd_comb_info comb_info;
+static struct sr_status mstatus;
+static struct cmd_zero_info zero_info;
+static struct cmd_comb_info comb_info;
 
 /**
  * Check the USB configuration to determine if this is an DSCope device.
@@ -350,7 +350,7 @@ static int fpga_config(struct libusb_device_handle *hdl, const char *filename)
 	struct stat f_stat;
 
     sr_info("Configure FPGA using %s", filename);
-    if ((fw = g_fopen(filename, "rb")) == NULL) {
+    if ((fw = fopen(filename, "rb")) == NULL) {
         sr_err("Unable to open FPGA bit file %s for reading: %s",
                filename, strerror(errno));
         return SR_ERR;
