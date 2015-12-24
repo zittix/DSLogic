@@ -104,7 +104,7 @@ private:
 
     QVector <QPushButton *> _cursor_pushButton_list;
     QVector <QLabel *> _curpos_label_list;
-    QVector <QLabel *> _space_label_list;
+    QVector <QLabel *> _curvalue_label_list;
 };
 
 } // namespace dock

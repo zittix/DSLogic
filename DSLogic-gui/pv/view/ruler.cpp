@@ -128,6 +128,28 @@ QString Ruler::format_time(double t, unsigned int prefix,
 		SIPrefixes[prefix] << "s";
 	return s;
 }
+	
+QString Ruler::format_voltage(double voltage,
+							   unsigned int precision)
+{
+	voltage*=10;
+	int order = ceil(log10f(voltage<0 ? voltage*-1 : voltage));
+	if(order < FirstSIPrefixPower)
+		order = FirstSIPrefixPower;
+		
+	/*const unsigned int prefix = ceil((order - FirstSIPrefixPower) / 3.0f);
+	const double multiplier = pow(10.0,
+								  static_cast<double>(- prefix * 3 - FirstSIPrefixPower));*/
+	double multiplier = 1;
+	unsigned prefix = 5;
+	
+	QString s;
+	QTextStream ts(&s);
+	ts.setRealNumberPrecision(precision);
+	ts << fixed << forcesign << (voltage * multiplier) <<
+	SIPrefixes[prefix] << "V";
+	return s;
+}
 
 QString Ruler::format_time(double t)
 {

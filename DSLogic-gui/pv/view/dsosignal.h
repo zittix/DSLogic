@@ -69,7 +69,8 @@ public:
     virtual ~DsoSignal();
 
     boost::shared_ptr<pv::data::SignalData> data() const;
-
+	virtual double get_vvalue(double time) const;
+	
 	void set_scale(float scale);
 
     /**
@@ -96,7 +97,7 @@ public:
     /**
      * Gets the mid-Y position of this signal.
      */
-    int get_zeroPos();
+    int get_zeroPos() const;
 
     /**
      * Sets the mid-Y position of this signal.

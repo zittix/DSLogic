@@ -29,6 +29,7 @@
 
 #include <QtGui/QApplication>
 #include <QEvent>
+#include <QTextStream>
 #include <QMouseEvent>
 #include <QScrollBar>
 
@@ -607,6 +608,9 @@ void View::data_updated()
 	// Repaint the view
     _need_update = true;
 	_viewport->update();
+	
+	// Update cursors
+	cursor_update();
 }
 
 void View::update_margins()
@@ -714,6 +718,46 @@ QString View::get_mm_freq()
     return _viewport->get_mm_freq();
 }
 
+QString View::get_cm_value(int index) {
+	assert(index < (int)_cursorList.size());
+	
+	int curIndex = 0;
+	for (list<Cursor*>::iterator i = _cursorList.begin();
+		 i != _cursorList.end(); i++) {
+		if (index == curIndex) {
+			
+			
+			const vector< boost::shared_ptr<Signal> > sigs(_session.get_signals());
+			
+			/*BOOST_FOREACH(const boost::shared_ptr<Signal> t, sigs)
+			{
+				assert(t);
+				
+				if ((action = t->pt_in_rect(t->get_y(), w, pt)))
+					return t;
+			}*/
+			
+			
+			
+			if(sigs.size()>0) {
+				double t = get_cursor_time(index);
+				double val = sigs[0]->get_vvalue(t);
+				if(std::isnan(val) || std::isinf(val)) {
+					return QString("####");
+				} else {
+					return _ruler->format_voltage(val);
+				}
+				
+			} else {
+				return QString("####");
+			}
+			
+			
+		}
+		curIndex++;
+	}
+}
+	
 QString View::get_cm_time(int index)
 {
     return _ruler->format_time(get_cursor_time(index));
@@ -736,6 +780,10 @@ double View::get_cursor_time(int index)
     for (list<Cursor*>::iterator i = _cursorList.begin();
          i != _cursorList.end(); i++) {
         if (index == curIndex) {
+			
+			//Get the first signal that crosses the marker (for now...)
+			
+			
             return (*i)->time();
         }
         curIndex++;

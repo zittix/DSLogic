@@ -822,10 +822,10 @@ int SigSession::hotplug_callback(struct libusb_context *ctx, struct libusb_devic
 
     if (LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED == event) {
         _session->_hot_attach = true;
-        qDebug("DSLogic attaced!\n");
+        qDebug("DSLogic attached!\n");
     }else if (LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT == event) {
         _session->_hot_detach = true;
-        qDebug("DSLogic dettaced!\n");
+        qDebug("DSLogic detached!\n");
     }else{
         qDebug("Unhandled event %d\n", event);
     }

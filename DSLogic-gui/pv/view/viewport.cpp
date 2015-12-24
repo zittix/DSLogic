@@ -202,6 +202,7 @@ void Viewport::paintSignals(QPainter &p)
     if (_measure_shown) {
         paintMeasure(p);
     }
+	
 }
 
 void Viewport::paintProgress(QPainter &p)

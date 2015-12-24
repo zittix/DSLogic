@@ -34,6 +34,7 @@ aclocal.m4
 DSLogic-gui/ui_*.h
 DSLogic-gui/DSLogic
 DSLogic-gui/install_manifest.txt
+DSLogic-gui/build
 
 moc_*.cxx
 moc_*.cxx_parameters

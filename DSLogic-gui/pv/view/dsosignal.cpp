@@ -32,6 +32,7 @@
 #include "../device/devinst.h"
 
 #include <QDebug>
+#include <limits>
 
 using namespace boost;
 using namespace std;
@@ -320,7 +321,7 @@ void DsoSignal::set_trig_vpos(int pos)
     }
 }
 
-int DsoSignal::get_zeroPos()
+int DsoSignal::get_zeroPos() const
 {
     return _zeroPos * get_view_rect().height() + UpMargin;
 }
@@ -342,6 +343,60 @@ QRectF DsoSignal::get_view_rect() const
                   _view->viewport()->height() - UpMargin - DownMargin);
 }
 
+	double DsoSignal::get_vvalue(double time) const {
+		assert(_view);
+		
+		
+		if (enabled()) {
+
+			const double scale = _view->scale();
+			assert(scale > 0);
+			const double offset = _view->offset();
+			
+			const deque< boost::shared_ptr<pv::data::DsoSnapshot> > &snapshots =
+			_data->get_snapshots();
+			
+			if (snapshots.empty())
+				return std::numeric_limits<double>::signaling_NaN();
+			
+			const boost::shared_ptr<pv::data::DsoSnapshot> &snapshot =
+			snapshots.front();
+			
+			const uint16_t number_channels = snapshot->get_channel_num();
+			if ((unsigned int)get_index() >= number_channels)
+				return std::numeric_limits<double>::signaling_NaN();
+			
+			//const double samplerate = _data->samplerate();
+			const double samplerate = _dev_inst->get_sample_rate();
+			const double start_time = _data->get_start_time();
+			
+			if(time<start_time) {
+				return std::numeric_limits<double>::signaling_NaN();
+			}
+			
+			int64_t sample_index = (time - start_time) * samplerate;
+			
+			const int64_t last_sample = max((int64_t)(snapshot->get_sample_count() - 1), (int64_t)0);
+			
+			if(sample_index>last_sample) {
+				return std::numeric_limits<double>::signaling_NaN();
+			}
+			
+			const uint8_t *const samples = snapshot->get_samples(sample_index, sample_index+1, get_index());
+			
+			
+			double val = (* samples - 0x80);
+			
+			val /= 255.0f;
+			
+			val = DS_CONF_DSO_VDIVS * get_vDialValue() / 1000.0 * val;
+			std::cout << val<< std::endl;
+			
+			
+			return val;
+		}
+	}
+	
 void DsoSignal::paint_back(QPainter &p, int left, int right)
 {
     assert(_view);

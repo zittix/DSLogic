@@ -64,6 +64,8 @@ public:
 
     virtual const std::vector< std::pair<uint64_t, bool> > cur_edges() const = 0;
 
+	virtual double get_vvalue(double time) const = 0;
+	
     /**
      * Returns true if the trace is visible and enabled.
      */

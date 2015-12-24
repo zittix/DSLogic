@@ -162,6 +162,7 @@ public:
     QString get_mm_period();
     QString get_mm_freq();
     QString get_cm_time(int index);
+	QString get_cm_value(int index);
     QString get_cm_delta(int index1, int index2);
 
     void on_mouse_moved();

@@ -61,7 +61,11 @@ public:
 	virtual ~LogicSignal();
 
     const sr_channel* probe() const;
-
+	
+	virtual double get_vvalue(double time) const {
+		return 0;
+	}
+	
     boost::shared_ptr<pv::data::SignalData> data() const;
 
     boost::shared_ptr<pv::data::Logic> logic_data() const;

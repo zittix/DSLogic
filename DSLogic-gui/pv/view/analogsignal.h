@@ -57,6 +57,10 @@ public:
 
 	void set_scale(float scale);
 
+	virtual double get_vvalue(double time) const {
+		return 0;
+	}
+	
 	/**
 	 * Paints the signal with a QPainter
 	 * @param p the QPainter to paint into.

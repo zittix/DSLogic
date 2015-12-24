@@ -113,6 +113,7 @@ MeasureDock::MeasureDock(QWidget *parent, View &view, SigSession &session) :
 
     _cursor_layout->addWidget(new QLabel("Cursors", this), 6, 0);
     _cursor_layout->addWidget(new QLabel("Time/Samples", this), 6, 1);
+	_cursor_layout->addWidget(new QLabel("Value", this), 6, 2);
 
     _cursor_layout->addWidget(new QLabel(this), 0, 4);
     _cursor_layout->addWidget(new QLabel(this), 1, 4);
@@ -168,13 +169,13 @@ void MeasureDock::cursor_update()
         for (QVector<QLabel *>::Iterator i = _curpos_label_list.begin();
              i != _curpos_label_list.end(); i++)
             delete (*i);
-        for (QVector<QLabel *>::Iterator i = _space_label_list.begin();
-             i != _space_label_list.end(); i++)
+        for (QVector<QLabel *>::Iterator i = _curvalue_label_list.begin();
+             i != _curvalue_label_list.end(); i++)
             delete (*i);
 
         _cursor_pushButton_list.clear();
         _curpos_label_list.clear();
-        _space_label_list.clear();
+        _curvalue_label_list.clear();
     }
 
     for(std::list<Cursor*>::iterator i = _view.get_cursorList().begin();
@@ -186,15 +187,20 @@ void MeasureDock::cursor_update()
 
         QPushButton *_cursor_pushButton = new QPushButton(curCursor, this);
         QString _cur_text = _view.get_cm_time(index - 1) + "/" + QString::number(_view.get_cursor_samples(index - 1));
-        QLabel *_curpos_label = new QLabel(_cur_text, this);
-        QLabel *_space_label = new QLabel(this);
+		
+		
+		
+		QString _cur_value =_view.get_cm_value(index - 1);
+		
+		QLabel *_curpos_label = new QLabel(_cur_text, this);
+        QLabel *_value_label = new QLabel(_cur_value, this);
         _cursor_pushButton_list.push_back(_cursor_pushButton);
         _curpos_label_list.push_back(_curpos_label);
-        _space_label_list.push_back(_space_label);
+        _curvalue_label_list.push_back(_value_label);
 
         _cursor_layout->addWidget(_cursor_pushButton, 6 + index, 0);
         _cursor_layout->addWidget(_curpos_label, 6 + index, 1);
-        _cursor_layout->addWidget(_space_label, 6 + index, 2);
+        _cursor_layout->addWidget(_value_label, 6 + index, 2);
 
         connect(_cursor_pushButton, SIGNAL(clicked()), this, SLOT(goto_cursor()));
 
@@ -232,7 +238,7 @@ void MeasureDock::cursor_moved()
             i != _view.get_cursorList().end(); i++) {
             QString _cur_text = _view.get_cm_time(index) + "/" + QString::number(_view.get_cursor_samples(index));
             _curpos_label_list.at(index)->setText(_cur_text);
-            //_curvalue_label_list.at(index)->setText(_view.get_cm_value(index));
+            _curvalue_label_list.at(index)->setText(_view.get_cm_value(index));
             index++;
         }
     }

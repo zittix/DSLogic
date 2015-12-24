@@ -64,6 +64,8 @@ public:
 
 	static QString format_time(double t, unsigned int prefix,
         unsigned precision = pricision);
+	static QString format_voltage(double voltage,
+							   unsigned precision = pricision);
     static QString format_freq(double period, unsigned precision = pricision);
     QString format_time(double t);
 
